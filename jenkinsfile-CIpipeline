@@ -1,0 +1,31 @@
+pipeline {
+  agent any
+    tools{
+        'org.jenkinsci.plugins.docker.commons.tools.DockerTool' 'docker'
+    }
+  stages {
+    stage('Cloning Git') {
+      steps {
+            git([url: 'https://github.com/kachok1213/pyFullCICD.git', branch: 'main', credentialsId: 'cred'])
+      }
+    }
+    stage('Building image') {
+      steps{
+        script {
+                    sh "docker version"
+                    sh "docker build -t kachok1213/mypyapp:${BUILD_NUMBER} ."
+                }
+            }
+        }
+    stage('Login') {
+            steps {
+                sh 'docker login -u $user -p $pass' 
+            }
+        }
+    stage('Push') {
+            steps {
+                sh 'docker push kachok1213/mypyapp:${BUILD_NUMBER}'
+            }
+        }
+    }
+}
